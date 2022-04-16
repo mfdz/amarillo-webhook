@@ -22,7 +22,7 @@ async def root(payload: dict = Body(...)):
         print("Push to main")
 
     print(payload)
-    
+
     return {"message": "Hello World"}
 
 if __name__ == "__main__":
