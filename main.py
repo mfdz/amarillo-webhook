@@ -20,6 +20,9 @@ async def root(payload: dict = Body(...)):
     is_main_branch = payload.get('ref') == 'refs/heads/main'
     if is_main_branch:
         print("Push to main")
+
+    print(payload)
+    
     return {"message": "Hello World"}
 
 if __name__ == "__main__":
