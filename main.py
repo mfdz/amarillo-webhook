@@ -8,7 +8,6 @@ print(f"Starting Amarillo-CD at {datetime.now().isoformat()}")
 app = FastAPI()
 
 
-
 @app.post("/payload")
 async def root(payload: dict = Body(...)):
     is_amarillo_cd = payload.get('repository').get('name') == "amarillo-cd"
