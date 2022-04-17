@@ -12,8 +12,11 @@ app = FastAPI()
 @app.post("/payload")
 async def root(payload: dict = Body(...)):
     if await is_amarillo_cd(payload):
-        print(f"Sending SIGTERM to Amarillo-CD at {datetime.now().isoformat()}")
+        print(f"Sending SIGTERM to Amarillo-CD at {datetime.now().isoformat()}.")
+
+        # https://docs.gunicorn.org/en/stable/signals.html
         guvicorn_process().send_signal(signal.SIGTERM)
+
         return
 
     is_main_branch = payload.get('ref') == 'refs/heads/main'
