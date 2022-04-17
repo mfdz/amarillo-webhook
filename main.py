@@ -1,10 +1,8 @@
-import sys
-from fastapi import FastAPI, Body, Request
-from datetime import datetime
+from fastapi import FastAPI, Body
 from util import guvicorn_process, is_amarillo_cd
 import signal
 
-print(f"Starting Amarillo-CD at {datetime.now().isoformat()}")
+print(f"CD started.")
 
 app = FastAPI()
 
@@ -12,7 +10,7 @@ app = FastAPI()
 @app.post("/payload")
 async def root(payload: dict = Body(...)):
     if await is_amarillo_cd(payload):
-        print(f"Sending SIGTERM to Amarillo-CD at {datetime.now().isoformat()}.")
+        print(f"CD sending SIGTERM to itself.")
 
         # https://docs.gunicorn.org/en/stable/signals.html
         guvicorn_process().send_signal(signal.SIGTERM)
@@ -26,4 +24,3 @@ async def root(payload: dict = Body(...)):
     print(payload)
 
     return {"message": "OK"}
-
