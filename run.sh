@@ -4,7 +4,7 @@ do
    git pull > git.log
    [ $? -eq 0 ] && git log -1 || cat git.log
 
-   pip installx --upgrade -r requirements.txt > pip.log
+   pip install --upgrade -r requirements.txt > pip.log
    [ $? -eq 0 ] && pip list || cat pip.log
 
    echo "Starting CD"
