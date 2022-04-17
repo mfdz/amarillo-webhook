@@ -12,11 +12,9 @@ app = FastAPI()
 @app.post("/payload")
 async def root(payload: dict = Body(...)):
     if await is_amarillo_cd(payload):
-        print(f"Exiting Amarillo-CD at {datetime.now().isoformat()}")
+        print(f"Sending SIGTERM to Amarillo-CD at {datetime.now().isoformat()}")
         guvicorn_process().send_signal(signal.SIGTERM)
-
-        # not sure if this response is sent or the SIGTERM is faster
-        return {"message": "Restarting Amarillo-CD"}
+        return
 
     is_main_branch = payload.get('ref') == 'refs/heads/main'
     if is_main_branch:
