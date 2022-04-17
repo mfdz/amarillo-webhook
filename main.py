@@ -1,7 +1,8 @@
-import uvicorn
 import sys
 from fastapi import FastAPI, Body, Request
 from datetime import datetime
+from util import guvicorn_process, is_amarillo_cd
+import signal
 
 print(f"Starting Amarillo-CD at {datetime.now().isoformat()}")
 
@@ -10,11 +11,12 @@ app = FastAPI()
 
 @app.post("/payload")
 async def root(payload: dict = Body(...)):
-    is_amarillo_cd = payload.get('repository').get('name') == "amarillo-cd"
-
-    if is_amarillo_cd:
+    if await is_amarillo_cd(payload):
         print(f"Exiting Amarillo-CD at {datetime.now().isoformat()}")
-        sys.exit(0)
+        guvicorn_process().send_signal(signal.SIGTERM)
+
+        # not sure if this response is sent or the SIGTERM is faster
+        return {"message": "Restarting Amarillo-CD"}
 
     is_main_branch = payload.get('ref') == 'refs/heads/main'
     if is_main_branch:
@@ -22,8 +24,5 @@ async def root(payload: dict = Body(...)):
 
     print(payload)
 
-    return {"message": "Hello World"}
+    return {"message": "OK"}
 
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8888)
