@@ -1,8 +1,7 @@
 while true
 do
 
-   git pull > git.log
-   [ $? -eq 0 ] && git log -1 || cat git.log
+   git pull
 
    pip install --upgrade -r requirements.txt > pip.log
    [ $? -eq 0 ] && pip list || cat pip.log
