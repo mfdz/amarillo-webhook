@@ -20,10 +20,13 @@ async def payload(payload: dict = Body(...)):
     is_main_branch = payload.get('ref') == 'refs/heads/main'
     if is_main_branch:
         print(f"CD sending SIGTERM to amarillo-dev.")
-
-        # https://docs.gunicorn.org/en/stable/signals.html
         guvicorn_process(process_name="amarillo-dev").send_signal(signal.SIGTERM)
+        return
 
+    is_release_branch = payload.get('ref') == 'refs/heads/release'
+    if is_release_branch:
+        print(f"CD sending SIGTERM to amarillo-prod.")
+        guvicorn_process(process_name="amarillo-prod").send_signal(signal.SIGTERM)
         return
 
     print(payload)
