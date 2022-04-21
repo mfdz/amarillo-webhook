@@ -1,6 +1,6 @@
 import psutil
 
-def guvicorn_process(process_name: str = "amarillo-cd", kind: str = "master"):
+def gunicorn_process(process_name: str = "amarillo-cd", kind: str = "master"):
     """Get the gunicorn process
 
     Gunicorn must be started with `--name` and will be displayed like
