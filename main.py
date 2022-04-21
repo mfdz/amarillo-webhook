@@ -1,15 +1,19 @@
 from fastapi import FastAPI, Body
-from util import guvicorn_process, is_amarillo_cd
+from util import gunicorn_process, is_amarillo_cd
 import signal
 import logging
+import docker
+import uvicorn
 
 logger = logging.getLogger(__name__)
 
 logger.setLevel(logging.INFO)
-logger.info("TODO Logging infos does not work :-/")
+logger.warning("TODO Logging infos does not work :-/")
 
 # TODO warning() because can't get info() to work :-/
 logger.warning(f"CD started.")
+
+docker_client = docker.from_env()
 
 app = FastAPI()
 
@@ -20,24 +24,31 @@ async def payload(payload: dict = Body(...)):
         logger.warning(f"CD sending SIGTERM to itself.")
 
         # https://docs.gunicorn.org/en/stable/signals.html
-        guvicorn_process().send_signal(signal.SIGTERM)
+        gunicorn_process().send_signal(signal.SIGTERM)
 
         return
 
     is_main_branch = payload.get('ref') == 'refs/heads/main'
     if is_main_branch:
-        logger.warning(f"CD sending SIGTERM to amarillo-dev.")
-        guvicorn_process(process_name="amarillo-dev").send_signal(signal.SIGTERM)
+        logger.warning(("CD trying to stpp the amarillo-dev container"))
+
+        container = docker_client.containers.get("amarillo-dev")
+        logger.warning((f"CD stopping container {container}"))
+
+        container.stop()
+        logger.warning((f"CD container stopped"))
+
+        #logger.warning(f"CD sending SIGTERM to amarillo-dev.")
+        #gunicorn_process(process_name="amarillo-dev").send_signal(signal.SIGTERM)
         return
 
     is_release_branch = payload.get('ref') == 'refs/heads/release'
     if is_release_branch:
         logger.warning(f"CD sending SIGTERM to amarillo-prod.")
-        guvicorn_process(process_name="amarillo-prod").send_signal(signal.SIGTERM)
+        gunicorn_process(process_name="amarillo-prod").send_signal(signal.SIGTERM)
         return
 
     print(payload)
 
-import uvicorn
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
