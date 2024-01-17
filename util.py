@@ -15,4 +15,4 @@ def gunicorn_process(process_name: str = "amarillo-cd", kind: str = "master"):
 
 
 async def is_amarillo_cd(payload):
-    return payload.get('repository').get('name') == "amarillo-cd"
+    return payload.get('repository').get('name') == "amarillo-webhook"
