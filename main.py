@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Body, HTTPException
+from fastapi import FastAPI, Body, HTTPException, Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from util import gunicorn_process, is_amarillo_cd
 import signal
 import logging
@@ -17,6 +18,7 @@ docker_client = docker.from_env()
 
 app = FastAPI()
 
+security = HTTPBasic()
 
 @app.post("/payload")
 async def payload(payload: dict = Body(...)):
@@ -50,14 +52,15 @@ async def payload(payload: dict = Body(...)):
 
     print(payload)
 
-@app.post("/mitanand")
-async def payload_mitanand(payload: dict = Body(...)):
+def verify_secret(credentials: HTTPBasicCredentials = Depends(security)):
     with open('secret.txt', 'r') as secret_file:
         secret = secret_file.read().strip()
-        if payload.get('secret') != secret:
-            raise HTTPException(status_code=403, detail="Incorrect deploy secret")
+        if credentials.password != secret:
+            raise HTTPException(status_code=401, detail="Incorrect deploy secret")
 
-    logger.warning(("CD trying to stpp the amarillo-mitanand container"))
+@app.post("/mitanand")
+async def payload_mitanand(payload: dict = Body(...), security = Depends(verify_secret)):
+    logger.warning(("CD trying to stop the amarillo-mitanand container"))
 
     container = docker_client.containers.get("amarillo-mitanand")
     logger.warning((f"CD stopping container {container}"))
