@@ -6,13 +6,14 @@ import logging
 import docker
 import uvicorn
 
+logging.basicConfig(
+    format='[%(asctime)s] [%(levelname)s] %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
+
 logger = logging.getLogger(__name__)
 
-logger.setLevel(logging.INFO)
-logger.warning("TODO Logging infos does not work :-/")
-
-# TODO warning() because can't get info() to work :-/
-logger.warning(f"CD started.")
+logger.info(f"CD started.")
 
 docker_client = docker.from_env()
 
