@@ -1,4 +1,8 @@
 import psutil
+import subprocess
+import logging
+
+logger = logging.getLogger(__name__)
 
 def gunicorn_process(process_name: str = "amarillo-cd", kind: str = "master"):
     """Get the gunicorn process
@@ -16,3 +20,18 @@ def gunicorn_process(process_name: str = "amarillo-cd", kind: str = "master"):
 
 async def is_amarillo_cd(payload):
     return payload.get('repository').get('name') == "amarillo-webhook"
+
+
+def run_command(command):
+    result = subprocess.run(command, shell=True)
+    if result.returncode != 0:
+        if result.stderr:
+            logger.error(f"Error: {result.stderr.decode('utf-8')}")
+        raise subprocess.CalledProcessError(
+                returncode = result.returncode,
+                cmd = result.args,
+                stderr = result.stderr
+                )
+    if result.stdout:
+        logger.info(result.stdout.decode('utf-8'))
+    return result

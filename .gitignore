@@ -1,4 +1,9 @@
 /.idea/
+/.vscode/
 venv
 /nohup.out
 /__pycache__/
+
+*.log
+.env
+secret.txt
