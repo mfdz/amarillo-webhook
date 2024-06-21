@@ -9,6 +9,7 @@ from pydantic_settings import BaseSettings
 
 class Config(BaseSettings):
     dev_compose_folder: str
+    dev_compose_env_file: str = "dev.env"
 
 config = Config(_env_file='.env', _env_file_encoding='utf-8')
 
@@ -79,15 +80,19 @@ async def payload_mitanand(payload: dict = Body(...), security = Depends(verify_
 async def payload_dev(payload: dict = Body(...), security = Depends(verify_secret)):
     project_name = "dev"
     compose_folder = config.dev_compose_folder
-    env_file_path = f"{compose_folder}/dev.env"
+    env_file_path = config.dev_compose_env_file
 
-    logger.info(f"Running pull command for {project_name}")
-    pull_command = f"docker compose -f {compose_folder}/compose.yaml --env-file {env_file_path} --profile enhancer --profile generator pull"
-    run_command(pull_command)
+    logger.info(f"Running git pull command for {project_name}")
+    run_command("pwd", compose_folder)
+    run_command("git pull", compose_folder)
+
+    logger.info(f"Running docker pull command for {project_name}")
+    pull_command = f"docker compose  --env-file {env_file_path} --profile enhancer --profile generator pull"
+    run_command(pull_command, compose_folder)
 
     logger.info(f"Running up command for {project_name}")
-    up_command = f"docker compose -f {compose_folder}/compose.yaml --env-file {env_file_path} --profile enhancer --profile generator -p {project_name} up -d"
-    run_command(up_command)
+    up_command = f"docker compose --env-file {env_file_path} --profile enhancer --profile generator -p {project_name} up -d"
+    run_command(up_command, compose_folder)
 
     logger.info(f"CD ran for {project_name}")
 

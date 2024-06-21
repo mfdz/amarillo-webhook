@@ -22,8 +22,8 @@ async def is_amarillo_cd(payload):
     return payload.get('repository').get('name') == "amarillo-webhook"
 
 
-def run_command(command):
-    result = subprocess.run(command, shell=True)
+def run_command(command, working_directory = "."):
+    result = subprocess.run(command, shell=True, cwd=working_directory)
     if result.returncode != 0:
         if result.stderr:
             logger.error(f"Error: {result.stderr.decode('utf-8')}")
